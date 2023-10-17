@@ -1,26 +1,34 @@
-//626a7c24
-
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 
 import MovieCard from "./MovieCard";
 import SearchIcon from "./search.svg";
 import "./App.css";
+import debounce from "./debounce";
 
-const API_URL = "http://www.omdbapi.com?apikey=b6003d8a";
+const API_URL = "https://www.omdbapi.com?apikey=626a7c24";
 
 const App = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [movies, setMovies] = useState([]);
 
   useEffect(() => {
-    searchMovies("Batman");
+    searchMovies("star");
   }, []);
 
   const searchMovies = async (title) => {
-    const response = await fetch(`${API_URL}&s=${title}`);
+    const response = await fetch(`${API_URL}&s=${title}&page=1`);
     const data = await response.json();
 
+    console.log(data.Search);
     setMovies(data.Search);
+  };
+
+  const customDebounce = useCallback(debounce(searchMovies), []);
+
+  const handleonChange = (e) => {
+    setSearchTerm(e.target.value); //value of search input field
+
+    customDebounce(e.target.value);
   };
 
   return (
@@ -30,7 +38,7 @@ const App = () => {
       <div className="search">
         <input
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          onChange={handleonChange}
           placeholder="Search for movies"
         />
         <img
